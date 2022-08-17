@@ -1,7 +1,13 @@
+// If the new character scanned in the input string fails to move the automata forward,
+// Potentially, the last few input characters happens to be a prefix of the input string
+// As a simple example, for the pattern abc, say that I have scanned in "ab", then, if
+// the next input character is "a", I fail to match, but, I can fall back to the state
+// of having already matched "a".
+// Formally, I can fall back to the longest prefix.
+
 const stringMatcher = (s: string, p: string) => {
   if (p.length === 0) return [];
   const transitionFunction = buildTransitionFunction(p);
-  // console.log({ transitionFunction });
   const occurences = [];
   let q = 0;
   for (let i = 0; i < s.length; i++) {
@@ -47,6 +53,7 @@ const buildTransitionFunction = (p: string) => {
   }
   return table;
 };
+
 // suffix of s, of length suffixLen
 const suffix = (s: string, suffixLen: number) =>
   s.substring(s.length - suffixLen, s.length);
@@ -54,11 +61,4 @@ const suffix = (s: string, suffixLen: number) =>
 // prefix of s, of length prefixLen
 const prefix = (s: string, prefixLen: number) => s.substring(0, prefixLen);
 
-// If the new character scanned in the input string fails to move the automata forward,
-// Potentially, the last few input characters happens to be a prefix of the input string
-// As a simple example, for the pattern abc, say that I have scanned in "ab", then, if
-// the next input character is "a", I fail to match, but, I can fall back to the state
-// of having already matched "a"
-
-// Formally, I can fall back to the longest prefix.
 export { stringMatcher, buildTransitionFunction, suffix, prefix };
