@@ -1,5 +1,5 @@
 # Bash History Analyzer
-What are your most used commands, the longest commands you have written...? Run the bash history analyzer to find out. Only works if you have a a `.bash_history` like file.
+What are your most used commands, the longest commands you have written...? Run the bash history analyzer to find out. Only works if you have a `.bash_history` like file.
 
 Here's the accompanying [blog post](https://unfooling.com/analyzing-my-11k-bash-commands/).
 
