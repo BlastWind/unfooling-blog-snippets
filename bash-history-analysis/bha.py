@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 import os
 import sys
 import argparse
@@ -7,8 +9,32 @@ from heapq import heappush, heappushpop
 from itertools import dropwhile
 
 if __name__ == "__main__":
-    history_path = os.path.join("", os.path.expanduser("~"), ".bash_history")
-    raw_history = open(history_path, 'r').read().splitlines()
+    parser = argparse.ArgumentParser(prog = 'bha', description='Bash history analyzer', epilog='By default, bha spits out the top 10 command names, the top 10 full commands, and the 10 shortest commands used from your ~/.bash_history')
+    parser.add_argument('history_path', nargs='?', default=os.path.join("", os.path.expanduser(
+        "~"), ".bash_history"), type=str, help="Specify bash history path. By default, this is ~/.bash_history.")
+    parser.add_argument('-n', '--names', action='store', metavar='N', help='Generate top N command names', type=int)
+    parser.add_argument('-fc', '--full_commands', metavar='N', action='store',
+                        help='Generate top N command names', type=int)
+    parser.add_argument('--first_k_keywords', metavar=('N', 'K'), action='store', nargs=2, type=int, help='Generate top N commands with keyword length = K')
+    parser.add_argument('--shortest', metavar='N', action='store', type=int, help='Generate top N unique shortest commands')
+    parser.add_argument('--longest', metavar='N', action='store',
+                        type=int, help='Generate top N unique longest commands')
+    parser.add_argument('-v', '--verbose_length', metavar='L', action='store',
+                        type=int, help='Truncate command prints to L letters')
+
+    args = parser.parse_args(sys.argv[1:])
+
+    first_k_keywords, names, full_commands, shortest, longest, verbose_length, history_path = attrgetter(
+        'first_k_keywords', 'names', 'full_commands', 'shortest', 'longest', 'verbose_length', 'history_path')(args)
+
+    if (first_k_keywords, names, full_commands, shortest, longest) == (None, None, None, None, None): 
+        names = 10 
+        full_commands = 10 
+        shortest = 10 
+        first_k_keywords = [10, 2]
+    
+    if not verbose_length: 
+        verbose_length = 20
 
     def nonEmpty(str: str) -> bool:
         return len(str) > 0
@@ -19,6 +45,7 @@ if __name__ == "__main__":
     def isSegmentDate(segment: str):
         return segment[0].isnumeric()
 
+    raw_history = open(history_path, 'r').read().splitlines()
     # remove blank lines and dates and env varibales
     history = list(map(lambda row: ' '.join(
         dropwhile(lambda segment: isSegmentDate(segment) or isSegmentEnvVar(segment), row.split())), raw_history
@@ -66,32 +93,6 @@ if __name__ == "__main__":
         # So, I issue a sorted
         return sorted(pq, reverse=True)
 
-    parser = argparse.ArgumentParser(prog = 'bha', description='Bash history analyzer', epilog='By default, bha spits out the top 10 command names, the top 10 full commands, and the 10 shortest commands used from your ~/.bash_history')
-    parser.add_argument('-n', '--names', action='store', metavar='N', help='Generate top N command names', type=int)
-    parser.add_argument('-fc', '--full_commands', metavar='N', action='store',
-                        help='Generate top N command names', type=int)
-    parser.add_argument('--first_k_keywords', metavar=('N', 'K'), action='store', nargs=2, type=int, help='Generate top N commands with keyword length = K')
-    parser.add_argument('--shortest', metavar='N', action='store', type=int, help='Generate top N unique shortest commands')
-    parser.add_argument('--longest', metavar='N', action='store',
-                        type=int, help='Generate top N unique longest commands')
-    parser.add_argument('-v', '--verbose_length', metavar='L', action='store',
-                        type=int, help='Truncate command prints to L letters')
-
-
-    args = parser.parse_args(sys.argv[1:])
-
-    first_k_keywords, names, full_commands, shortest, longest, verbose_length = attrgetter(
-        'first_k_keywords', 'names', 'full_commands', 'shortest', 'longest', 'verbose_length')(args)
-    
-    if (first_k_keywords, names, full_commands, shortest, longest) == (None, None, None, None, None): 
-        names = 10 
-        full_commands = 10 
-        shortest = 10 
-        first_k_keywords = [10, 2]
-    
-    if not verbose_length: 
-        verbose_length = 20
-
     def truncateTo(string: str, toLength: int) -> str: 
         if len(string) <= toLength:  
             return string
@@ -101,7 +102,6 @@ if __name__ == "__main__":
         print(f"{names} most used command names and their frequencies:")
         print(' | '.join([f'{truncateTo(name, verbose_length)} : {count}' for (name, count) in top_n_command_name(names)]))
         print()
-
 
     if first_k_keywords and first_k_keywords: 
         n, k = first_k_keywords
@@ -120,7 +120,6 @@ if __name__ == "__main__":
         print(' | '.join([f'{truncateTo(name, verbose_length)} : {length}' for (
             length, name) in top_k_unique_shortest(shortest)]))
         print()
-
 
     if longest and longest > 0: 
         print(f"{longest} longest commands used and their lengths:")
