@@ -34,7 +34,7 @@ if __name__ == "__main__":
 
     def top_n_k_keyword(n: int, k: int):
         keywords_list = [' '.join(row.split()[:k])
-                          for row in history if len(row.split()) >= k]
+                          for row in history if len(row.split()) == k]
         return Counter(keywords_list).most_common(n)
 
     def top_k_unique_shortest(k: int):
