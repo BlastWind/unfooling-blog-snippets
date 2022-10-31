@@ -43,9 +43,9 @@ if __name__ == "__main__":
         return '=' in segment
 
     def isSegmentDate(segment: str):
-        return segment[0].isnumeric()
+        return len(segment) > 0 and segment[0].isnumeric()
 
-    raw_history = open(history_path, 'r').read().splitlines()
+    raw_history = open(history_path, 'r', errors='ignore').read().splitlines()
     # remove blank lines and dates and env varibales
     history = list(map(lambda row: ' '.join(
         dropwhile(lambda segment: isSegmentDate(segment) or isSegmentEnvVar(segment), row.split())), raw_history
