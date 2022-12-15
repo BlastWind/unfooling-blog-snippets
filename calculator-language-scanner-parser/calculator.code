@@ -1,6 +1,6 @@
 /* Snippet of the calculator language */
-a := 3 // set a to 3
-b07 := (3 * 5) + 6
+a := 3.89 // set a to 3
+b07 := (3.5 * 5) + .234
 a := b07
 read a 
-write a
+write a /
